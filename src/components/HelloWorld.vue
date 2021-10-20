@@ -103,14 +103,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Vue, Options } from 'vue-class-component'
 
-@Component({
+@Options({
   name: 'HelloWorld',
-  components: {},
+  props: {
+    msg: String,
+  },
 })
 export default class HelloWorld extends Vue {
-  @Prop() private msg!: string
+  msg!: string
 }
 </script>
 

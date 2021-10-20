@@ -10,9 +10,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Options } from 'vue-class-component'
 
-@Component({
+@Options({
   name: 'Counter',
 })
 export default class extends Vue {

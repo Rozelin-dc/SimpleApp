@@ -3,11 +3,9 @@
     <h2>Save Links</h2>
     <div>
       <li v-for="link in links" :key="link.url" style="margin-bottom: 5px">
-        <el-tooltip effect="light" placement="top" :content="link.url">
-          <el-link :href="link.url" style="margin-right: 5px">
-            {{ link.detail }}
-          </el-link>
-        </el-tooltip>
+        <el-link :href="link.url" style="margin-right: 5px">
+          {{ link.detail }}
+        </el-link>
         <el-tooltip
           effect="light"
           placement="top"
@@ -53,14 +51,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Options } from 'vue-class-component'
 
 interface Link {
   url: string
   detail: string
 }
 
-@Component({
+@Options({
   name: 'SaveLinks',
 })
 export default class extends Vue {

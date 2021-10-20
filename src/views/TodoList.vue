@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Vue, Options } from 'vue-class-component'
 
 interface Task {
   number: number
@@ -77,7 +77,7 @@ interface Task {
   status: string
 }
 
-@Component({
+@Options({
   name: 'TodoList',
 })
 export default class extends Vue {
@@ -130,6 +130,7 @@ export default class extends Vue {
     this.newTask.name = ''
     this.newTask.date = ''
     this.newTask.status = ''
+    this.refleshTable()
   }
 
   taskComplete(taskId: number) {
@@ -145,6 +146,7 @@ export default class extends Vue {
 
   taskDelete(taskId: number) {
     this.tasks = this.tasks.filter((task) => task.number !== taskId)
+    this.refleshTable()
   }
 
   taskCompleteBulk() {
@@ -167,13 +169,13 @@ export default class extends Vue {
           (selected) => selected.number === task.number
         )
     )
+    this.refleshTable()
   }
 
   handleSelectionChange(val: Task[]) {
     this.multipleSelection = val
   }
 
-  @Watch('tasks', { deep: true })
   refleshTable() {
     if (this.key === 'a') this.key = 'b'
     else this.key = 'a'
