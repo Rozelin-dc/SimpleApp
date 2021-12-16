@@ -96,7 +96,6 @@ export default class extends Vue {
   }
 
   addLink() {
-
     if (this.newLink.detail === '') {
       this.newLink.detail = this.newLink.url
     }
