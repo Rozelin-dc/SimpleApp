@@ -101,7 +101,7 @@ export default class extends Vue {
   get addOk() {
     if (this.newTask.name === '') return false
 
-    this.$refs[this.formName].validate((isValid) => {
+    this.$refs[this.newTask].validate((isValid: boolean) => {
       this.isValid = isValid
     })
     return this.isValid

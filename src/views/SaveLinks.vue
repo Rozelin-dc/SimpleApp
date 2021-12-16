@@ -6,26 +6,31 @@
         <el-link :href="link.url" style="margin-right: 5px">
           {{ link.detail }}
         </el-link>
-        <el-tooltip
-          effect="light"
-          placement="top"
-          content="クリックでリンクアドレスをコピー"
+        <el-button
+          v-clipboard="link.url"
+          v-clipboard:success="copySuccess"
+          v-clipboard:error="copyError"
+          type="primary"
+          icon="el-icon-edit"
+          size="small"
+          circle
+        />
+        <el-popconfirm
+          confirm-button-text="はい"
+          cancel-button-text="いいえ"
+          :icon="InfoFilled"
+          icon-color="red"
+          title="リンクを削除します。よろしいですか？"
+          @confirm="deleteLink(link)"
+          @cancel="() => {}"
         >
-          <el-button
-            v-clipboard="link.url"
-            v-clipboard:success="copySuccess"
-            v-clipboard:error="copyError"
-            type="primary"
-            icon="el-icon-edit"
-            size="small"
-            circle
-          />
-        </el-tooltip>
-        <el-button type="info" size="small" @click="deleteLink(link)">
-          削除
-        </el-button>
+          <template #reference>
+            <el-button type="info" size="small"> 削除 </el-button>
+          </template>
+        </el-popconfirm>
       </li>
     </div>
+
     <el-form ref="newLink" :inline="true" :model="newLink" :rules="inputError">
       <el-form-item label="URL" prop="url">
         <el-input
@@ -51,6 +56,7 @@
 </template>
 
 <script lang="ts">
+import { ElNotification } from 'element-plus'
 import { Vue, Options } from 'vue-class-component'
 
 interface Link {
@@ -78,7 +84,7 @@ export default class extends Vue {
   get addOk() {
     if (this.newLink.url === '') return false
 
-    this.$refs[this.formName].validate((isValid) => {
+    this.$refs[this.formName].validate((isValid: boolean) => {
       this.isValid = isValid
     })
     return this.isValid
@@ -90,7 +96,10 @@ export default class extends Vue {
   }
 
   addLink() {
-    if (this.newLink.detail === '') this.newLink.detail = this.newLink.url
+
+    if (this.newLink.detail === '') {
+      this.newLink.detail = this.newLink.url
+    }
     this.links.push({ ...this.newLink })
     localStorage.setItem('RozelinAppLinks', JSON.stringify(this.links))
     this.newLink.url = ''
@@ -98,24 +107,12 @@ export default class extends Vue {
   }
 
   async deleteLink(deleteLink: Link) {
-    try {
-      await this.$confirm(
-        '次のリンクを削除します。よろしいですか？\nURL: ' +
-          deleteLink.url +
-          '\n詳細: ' +
-          deleteLink.detail,
-        { customClass: 'delete-link-confirm' }
-      )
-    } catch {
-      return
-    }
-
     this.links = this.links.filter((link) => link.url !== deleteLink.url)
     localStorage.setItem('RozelinAppLinks', JSON.stringify(this.links))
   }
 
   copySuccess() {
-    this.$message({
+    ElNotification({
       message: 'URLをコピーしました',
       type: 'success',
       duration: 5 * 1000,
@@ -123,7 +120,7 @@ export default class extends Vue {
   }
 
   copyError() {
-    this.$message({
+    ElNotification({
       message: 'URLのコピーに失敗しました',
       type: 'error',
       duration: 5 * 1000,
