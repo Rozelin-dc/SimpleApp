@@ -17,7 +17,7 @@ module.exports = {
   plugins: ['vue', '@typescript-eslint'],
   rules: {
     'prettier/prettier': [
-      'error',
+      'warn',
       {
         singleQuote: true,
         semi: false,
