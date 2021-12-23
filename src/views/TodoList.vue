@@ -39,7 +39,7 @@
       <el-button type="info" @click="taskDeleteBulk"> まとめて削除 </el-button>
     </div>
     <el-divider />
-    <el-form ref="newTask" :inline="true" :model="newTask" :rules="inputError">
+    <el-form ref="formRef" :inline="true" :model="newTask" :rules="inputError">
       <el-form-item label="タスク" prop="name">
         <el-input
           v-model="newTask.name"
@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Options } from 'vue-class-component'
+import { computed, defineComponent, reactive, ref, Ref, onMounted } from 'vue'
 
 interface Task {
   number: number
@@ -77,111 +77,127 @@ interface Task {
   status: string
 }
 
-@Options({
+export default defineComponent({
   name: 'TodoList',
+  setup() {
+    const inputError = reactive({
+      name: [{ required: true, message: 'タスクの名前を入力してください。' }],
+    })
+
+    let newTask = reactive({
+      name: '',
+      date: '',
+      status: '',
+    })
+
+    const tasks: Ref<Task[]> = ref([])
+    const multipleSelection: Ref<Task[]> = ref([])
+    const newTaskNumber = ref(0)
+    const formRef = ref()
+    const isValid = ref(true)
+    const key: Ref<'a' | 'b'> = ref('a')
+
+    const addOk = computed(() => {
+      if (newTask.name === '') return false
+
+      formRef.value.validate((v: boolean) => {
+        isValid.value = v
+      })
+      return isValid.value
+    })
+
+    const addTask = () => {
+      if (newTask.date === '') {
+        newTask.date = 'なし'
+      }
+      if (newTask.status === '') {
+        newTask.status = '未完'
+      }
+      tasks.value.push({
+        ...newTask,
+        number: newTaskNumber.value,
+      })
+      newTaskNumber.value += 1
+      newTask.name = ''
+      newTask.date = ''
+      newTask.status = ''
+      refreshTable()
+    }
+
+    const taskComplete = (taskId: number) => {
+      for (let i = 0; i < tasks.value.length; i++) {
+        const index = tasks.value[i]
+        if (index.number === taskId) {
+          tasks.value[i] = { ...index, status: '完了' }
+          break
+        }
+      }
+      refreshTable()
+    }
+
+    const taskDelete = (taskId: number) => {
+      tasks.value = tasks.value.filter((task) => task.number !== taskId)
+      refreshTable()
+    }
+
+    const taskCompleteBulk = () => {
+      tasks.value.forEach((task) => {
+        if (
+          multipleSelection.value.some(
+            (selected) => selected.number === task.number
+          )
+        ) {
+          task.status = '完了'
+        }
+      })
+      refreshTable()
+    }
+
+    const taskDeleteBulk = () => {
+      tasks.value = tasks.value.filter(
+        (task) =>
+          !multipleSelection.value.some(
+            (selected) => selected.number === task.number
+          )
+      )
+      refreshTable()
+    }
+
+    const handleSelectionChange = (val: Task[]) => {
+      multipleSelection.value = val
+    }
+
+    const refreshTable = () => {
+      if (key.value === 'a') key.value = 'b'
+      else key.value = 'a'
+
+      localStorage.setItem('RozelinAppTasks', JSON.stringify(tasks))
+    }
+
+    onMounted(() => {
+      const localTask = localStorage.getItem('RozelinAppTasks')
+      if (localTask) {
+        tasks.value = JSON.parse(localTask)
+        newTaskNumber.value = tasks.value[tasks.value.length - 1].number + 2
+      }
+    })
+
+    return {
+      inputError,
+      newTask,
+      tasks,
+      formRef,
+      key,
+      addOk,
+      addTask,
+      taskComplete,
+      taskDelete,
+      taskCompleteBulk,
+      taskDeleteBulk,
+      handleSelectionChange,
+    }
+  },
 })
-export default class extends Vue {
-  inputError = {
-    name: [{ required: true, message: 'タスクの名前を入力してください。' }],
-  }
-
-  newTask = {
-    name: '',
-    date: '',
-    status: '',
-  }
-
-  tasks: Task[] = []
-  multipleSelection: Task[] = []
-  newTaskNumber = 0
-  formName = 'newTask'
-  isValid = true
-  key: 'a' | 'b' = 'a'
-
-  get addOk() {
-    if (this.newTask.name === '') return false
-
-    this.$refs[this.newTask].validate((isValid: boolean) => {
-      this.isValid = isValid
-    })
-    return this.isValid
-  }
-
-  mounted() {
-    const localTask = localStorage.getItem('RozelinAppTasks')
-    if (localTask) {
-      this.tasks = JSON.parse(localTask)
-      this.newTaskNumber = this.tasks[this.tasks.length - 1].number + 2
-    }
-  }
-
-  addTask() {
-    if (this.newTask.date === '') {
-      this.newTask.date = 'なし'
-    }
-    if (this.newTask.status === '') {
-      this.newTask.status = '未完'
-    }
-    this.tasks.push({
-      ...this.newTask,
-      number: this.newTaskNumber,
-    })
-    this.newTaskNumber = this.newTaskNumber + 1
-    this.newTask.name = ''
-    this.newTask.date = ''
-    this.newTask.status = ''
-    this.refleshTable()
-  }
-
-  taskComplete(taskId: number) {
-    for (let i = 0; i < this.tasks.length; i++) {
-      const index = this.tasks[i]
-      if (index.number === taskId) {
-        this.tasks[i] = { ...index, status: '完了' }
-        break
-      }
-    }
-    this.refleshTable()
-  }
-
-  taskDelete(taskId: number) {
-    this.tasks = this.tasks.filter((task) => task.number !== taskId)
-    this.refleshTable()
-  }
-
-  taskCompleteBulk() {
-    this.tasks.forEach((task) => {
-      if (
-        this.multipleSelection.some(
-          (selected) => selected.number === task.number
-        )
-      ) {
-        task.status = '完了'
-      }
-    })
-    this.refleshTable()
-  }
-
-  taskDeleteBulk() {
-    this.tasks = this.tasks.filter(
-      (task) =>
-        !this.multipleSelection.some(
-          (selected) => selected.number === task.number
-        )
-    )
-    this.refleshTable()
-  }
-
-  handleSelectionChange(val: Task[]) {
-    this.multipleSelection = val
-  }
-
-  refleshTable() {
-    if (this.key === 'a') this.key = 'b'
-    else this.key = 'a'
-    localStorage.setItem('RozelinAppTasks', JSON.stringify(this.tasks))
-  }
-}
 </script>
 
 <style scoped>
