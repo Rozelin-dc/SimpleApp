@@ -31,7 +31,7 @@
       </li>
     </div>
 
-    <el-form ref="newLink" :inline="true" :model="newLink" :rules="inputError">
+    <el-form ref="formRef" :inline="true" :model="newLink" :rules="inputError">
       <el-form-item label="URL" prop="url">
         <el-input
           v-model="newLink.url"
@@ -57,75 +57,86 @@
 
 <script lang="ts">
 import { ElNotification } from 'element-plus'
-import { Vue, Options } from 'vue-class-component'
+import { computed, defineComponent, onMounted, reactive, ref, Ref } from 'vue'
 
 interface Link {
   url: string
   detail: string
 }
 
-@Options({
+export default defineComponent({
   name: 'SaveLinks',
-})
-export default class extends Vue {
-  newLink: Link = {
-    url: '',
-    detail: '',
-  }
-
-  inputError = {
-    url: [{ required: true, message: 'リンク先のURLを入力してください' }],
-  }
-
-  links: Link[] = []
-  formName = 'newLink'
-  isValid = true
-
-  get addOk() {
-    if (this.newLink.url === '') return false
-
-    this.$refs[this.formName].validate((isValid: boolean) => {
-      this.isValid = isValid
+  setup() {
+    let newLink: Link = reactive({
+      url: '',
+      detail: '',
     })
-    return this.isValid
-  }
 
-  mounted() {
-    const localLinks = localStorage.getItem('RozelinAppLinks')
-    if (localLinks) this.links = JSON.parse(localLinks)
-  }
+    const inputError = reactive({
+      url: [{ required: true, message: 'リンク先のURLを入力してください' }],
+    })
 
-  addLink() {
-    if (this.newLink.detail === '') {
-      this.newLink.detail = this.newLink.url
+    const links: Ref<Link[]> = ref([])
+    const formRef = ref()
+    const isValid = ref(true)
+
+    const addOk = computed(() => {
+      if (newLink.url === '') return false
+
+      formRef.value.validate((v: boolean) => {
+        isValid.value = v
+      })
+      return isValid.value
+    })
+
+    const addLink = () => {
+      if (newLink.detail === '') {
+        newLink.detail = newLink.url
+      }
+      links.value.push({ ...newLink })
+      localStorage.setItem('RozelinAppLinks', JSON.stringify(links))
+      newLink.url = ''
+      newLink.detail = ''
     }
-    this.links.push({ ...this.newLink })
-    localStorage.setItem('RozelinAppLinks', JSON.stringify(this.links))
-    this.newLink.url = ''
-    this.newLink.detail = ''
-  }
 
-  async deleteLink(deleteLink: Link) {
-    this.links = this.links.filter((link) => link.url !== deleteLink.url)
-    localStorage.setItem('RozelinAppLinks', JSON.stringify(this.links))
-  }
+    const deleteLink = (deleteLink: Link) => {
+      links.value = links.value.filter((link) => link.url !== deleteLink.url)
+      localStorage.setItem('RozelinAppLinks', JSON.stringify(links.value))
+    }
 
-  copySuccess() {
-    ElNotification({
-      message: 'URLをコピーしました',
-      type: 'success',
-      duration: 5 * 1000,
+    const copySuccess = () => {
+      ElNotification({
+        message: 'URLをコピーしました',
+        type: 'success',
+        duration: 5 * 1000,
+      })
+    }
+
+    const copyError = () => {
+      ElNotification({
+        message: 'URLのコピーに失敗しました',
+        type: 'error',
+        duration: 5 * 1000,
+      })
+    }
+
+    onMounted(() => {
+      const localLinks = localStorage.getItem('RozelinAppLinks')
+      if (localLinks) links.value = JSON.parse(localLinks)
     })
-  }
 
-  copyError() {
-    ElNotification({
-      message: 'URLのコピーに失敗しました',
-      type: 'error',
-      duration: 5 * 1000,
-    })
-  }
-}
+    return {
+      newLink,
+      links,
+      inputError,
+      addOk,
+      addLink,
+      deleteLink,
+      copySuccess,
+      copyError,
+    }
+  },
+})
 </script>
 
 <style>
