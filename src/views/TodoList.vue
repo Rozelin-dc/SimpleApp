@@ -91,10 +91,11 @@ export default defineComponent({
     })
 
     const tasks: Ref<Task[]> = ref([])
-    const multipleSelection: Ref<Task[]> = ref([])
     const newTaskNumber = ref(0)
     const formRef = ref()
     const key: Ref<'a' | 'b'> = ref('a')
+
+    let multipleSelection: Task[] = []
 
     let isValid = true
     const addOk = computed(() => {
@@ -143,9 +144,7 @@ export default defineComponent({
     const taskCompleteBulk = () => {
       tasks.value.forEach((task) => {
         if (
-          multipleSelection.value.some(
-            (selected) => selected.number === task.number
-          )
+          multipleSelection.some((selected) => selected.number === task.number)
         ) {
           task.status = '完了'
         }
@@ -156,22 +155,20 @@ export default defineComponent({
     const taskDeleteBulk = () => {
       tasks.value = tasks.value.filter(
         (task) =>
-          !multipleSelection.value.some(
-            (selected) => selected.number === task.number
-          )
+          !multipleSelection.some((selected) => selected.number === task.number)
       )
       refreshTable()
     }
 
     const handleSelectionChange = (val: Task[]) => {
-      multipleSelection.value = val
+      multipleSelection = val
     }
 
     const refreshTable = () => {
       if (key.value === 'a') key.value = 'b'
       else key.value = 'a'
 
-      localStorage.setItem('RozelinAppTasks', JSON.stringify(tasks))
+      localStorage.setItem('RozelinAppTasks', JSON.stringify(tasks.value))
     }
 
     onMounted(() => {

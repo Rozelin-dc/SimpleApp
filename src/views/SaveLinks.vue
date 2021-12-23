@@ -84,7 +84,7 @@ export default defineComponent({
         newLink.detail = newLink.url
       }
       links.value.push({ ...newLink })
-      localStorage.setItem('RozelinAppLinks', JSON.stringify(links))
+      localStorage.setItem('RozelinAppLinks', JSON.stringify(links.value))
       newLink.url = ''
       newLink.detail = ''
     }
