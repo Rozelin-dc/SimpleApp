@@ -91,7 +91,6 @@ export default defineComponent({
     })
 
     const tasks: Ref<Task[]> = ref([])
-    const newTaskNumber = ref(0)
     const formRef = ref()
     const key: Ref<'a' | 'b'> = ref('a')
 
@@ -107,6 +106,8 @@ export default defineComponent({
       return isValid
     })
 
+    let newTaskNumber = 0
+
     const addTask = () => {
       if (newTask.date === '') {
         newTask.date = 'なし'
@@ -114,11 +115,13 @@ export default defineComponent({
       if (newTask.status === '') {
         newTask.status = '未完'
       }
+
       tasks.value.push({
         ...newTask,
-        number: newTaskNumber.value,
+        number: newTaskNumber,
       })
-      newTaskNumber.value += 1
+
+      newTaskNumber += 1
       newTask.name = ''
       newTask.date = ''
       newTask.status = ''
@@ -175,7 +178,7 @@ export default defineComponent({
       const localTask = localStorage.getItem('RozelinAppTasks')
       if (localTask) {
         tasks.value = JSON.parse(localTask)
-        newTaskNumber.value = tasks.value[tasks.value.length - 1].number + 2
+        newTaskNumber = tasks.value[tasks.value.length - 1].number + 2
       }
     })
 
