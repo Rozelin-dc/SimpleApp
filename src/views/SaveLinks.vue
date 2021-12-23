@@ -6,15 +6,7 @@
         <el-link :href="link.url" style="margin-right: 5px">
           {{ link.detail }}
         </el-link>
-        <el-button
-          v-clipboard="link.url"
-          v-clipboard:success="copySuccess"
-          v-clipboard:error="copyError"
-          type="primary"
-          icon="el-icon-edit"
-          size="small"
-          circle
-        />
+        <el-button type="primary" icon="el-icon-edit" size="small" circle />
         <el-popconfirm
           confirm-button-text="はい"
           cancel-button-text="いいえ"
@@ -71,22 +63,20 @@ export default defineComponent({
       url: '',
       detail: '',
     })
-
+    const links: Ref<Link[]> = ref([])
+    const formRef = ref()
     const inputError = reactive({
       url: [{ required: true, message: 'リンク先のURLを入力してください' }],
     })
 
-    const links: Ref<Link[]> = ref([])
-    const formRef = ref()
-    const isValid = ref(true)
-
+    let isValid = true
     const addOk = computed(() => {
       if (newLink.url === '') return false
 
       formRef.value.validate((v: boolean) => {
-        isValid.value = v
+        isValid = v
       })
-      return isValid.value
+      return isValid
     })
 
     const addLink = () => {

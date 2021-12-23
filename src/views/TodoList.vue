@@ -94,16 +94,16 @@ export default defineComponent({
     const multipleSelection: Ref<Task[]> = ref([])
     const newTaskNumber = ref(0)
     const formRef = ref()
-    const isValid = ref(true)
     const key: Ref<'a' | 'b'> = ref('a')
 
+    let isValid = true
     const addOk = computed(() => {
       if (newTask.name === '') return false
 
       formRef.value.validate((v: boolean) => {
-        isValid.value = v
+        isValid = v
       })
-      return isValid.value
+      return isValid
     })
 
     const addTask = () => {
