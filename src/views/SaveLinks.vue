@@ -3,32 +3,32 @@
     <h2>Save Links</h2>
     <div>
       <li v-for="link in links" :key="link.url" style="margin-bottom: 5px">
-        <el-tooltip effect="light" placement="top" :content="link.url">
-          <el-link :href="link.url" style="margin-right: 5px">
-            {{ link.detail }}
-          </el-link>
-        </el-tooltip>
-        <el-tooltip
-          effect="light"
-          placement="top"
-          content="クリックでリンクアドレスをコピー"
+        <el-link :href="link.url" style="margin-right: 5px">
+          {{ link.detail }}
+        </el-link>
+        <el-button
+          circle
+          type="primary"
+          icon="el-icon-edit"
+          size="small"
+          @click="copy(link.url)"
+        />
+        <el-popconfirm
+          confirm-button-text="はい"
+          cancel-button-text="いいえ"
+          icon-color="red"
+          title="リンクを削除します。よろしいですか？"
+          @confirm="deleteLink(link)"
+          @cancel="() => {}"
         >
-          <el-button
-            v-clipboard="link.url"
-            v-clipboard:success="copySuccess"
-            v-clipboard:error="copyError"
-            type="primary"
-            icon="el-icon-edit"
-            size="small"
-            circle
-          />
-        </el-tooltip>
-        <el-button type="info" size="small" @click="deleteLink(link)">
-          削除
-        </el-button>
+          <template #reference>
+            <el-button type="info" size="small"> 削除 </el-button>
+          </template>
+        </el-popconfirm>
       </li>
     </div>
-    <el-form ref="newLink" :inline="true" :model="newLink" :rules="inputError">
+
+    <el-form ref="formRef" :inline="true" :model="newLink" :rules="inputError">
       <el-form-item label="URL" prop="url">
         <el-input
           v-model="newLink.url"
@@ -53,88 +53,97 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
-import { Form as ElForm } from 'element-ui'
+import { ElNotification } from 'element-plus'
+import { computed, defineComponent, onMounted, reactive, ref, Ref } from 'vue'
 
 interface Link {
   url: string
   detail: string
 }
 
-@Component({
+export default defineComponent({
   name: 'SaveLinks',
-  components: {},
-})
-export default class extends Vue {
-  newLink: Link = {
-    url: '',
-    detail: '',
-  }
-
-  inputError = {
-    url: [{ required: true, message: 'リンク先のURLを入力してください' }],
-  }
-
-  links: Link[] = []
-  formName = 'newLink'
-  isValid = true
-
-  get addOk() {
-    if (this.newLink.url === '') return false
-
-    const $form = this.$refs[this.formName] as ElForm
-    $form.validate((isValid) => {
-      this.isValid = isValid
+  setup() {
+    let newLink: Link = reactive({
+      url: '',
+      detail: '',
     })
-    return this.isValid
-  }
+    const links: Ref<Link[]> = ref([])
+    const formRef = ref()
+    const inputError = reactive({
+      url: [{ required: true, message: 'リンク先のURLを入力してください' }],
+    })
 
-  mounted() {
-    const localLinks = localStorage.getItem('RozelinAppLinks')
-    if (localLinks) this.links = JSON.parse(localLinks)
-  }
+    let isValid = true
+    const addOk = computed(() => {
+      if (newLink.url === '') return false
 
-  addLink() {
-    if (this.newLink.detail === '') this.newLink.detail = this.newLink.url
-    this.links.push({ ...this.newLink })
-    localStorage.setItem('RozelinAppLinks', JSON.stringify(this.links))
-    this.newLink.url = ''
-    this.newLink.detail = ''
-  }
+      formRef.value.validate((v: boolean) => {
+        isValid = v
+      })
+      return isValid
+    })
 
-  async deleteLink(deleteLink: Link) {
-    try {
-      await this.$confirm(
-        '次のリンクを削除します。よろしいですか？\nURL: ' +
-          deleteLink.url +
-          '\n詳細: ' +
-          deleteLink.detail,
-        { customClass: 'delete-link-confirm' }
-      )
-    } catch {
-      return
+    const addLink = () => {
+      if (newLink.detail === '') {
+        newLink.detail = newLink.url
+      }
+      links.value.push({ ...newLink })
+      setLinks()
+      newLink.url = ''
+      newLink.detail = ''
     }
 
-    this.links = this.links.filter((link) => link.url !== deleteLink.url)
-    localStorage.setItem('RozelinAppLinks', JSON.stringify(this.links))
-  }
+    const deleteLink = (deleteLink: Link) => {
+      links.value = links.value.filter((link) => link.url !== deleteLink.url)
+      setLinks()
+    }
 
-  copySuccess() {
-    this.$message({
-      message: 'URLをコピーしました',
-      type: 'success',
-      duration: 5 * 1000,
-    })
-  }
+    const setLinks = () => {
+      if (links.value.length === 0) {
+        localStorage.clear()
+      } else {
+        localStorage.setItem('RozelinAppLinks', JSON.stringify(links.value))
+      }
+    }
 
-  copyError() {
-    this.$message({
-      message: 'URLのコピーに失敗しました',
-      type: 'error',
-      duration: 5 * 1000,
+    const copy = (value: string) => {
+      navigator.clipboard
+        .writeText(value)
+        .then(() => {
+          ElNotification({
+            message: 'URLのコピーに成功しました',
+            type: 'success',
+            duration: 5 * 1000,
+          })
+        })
+        .catch((e) => {
+          console.error(e)
+          ElNotification({
+            message: 'URLのコピーに失敗しました',
+            type: 'error',
+            duration: 5 * 1000,
+          })
+        })
+    }
+
+    onMounted(() => {
+      const localLinks = localStorage.getItem('RozelinAppLinks')
+      if (localLinks) links.value = JSON.parse(localLinks)
     })
-  }
-}
+
+    return {
+      newLink,
+      links,
+      inputError,
+      formRef,
+      addOk,
+      addLink,
+      deleteLink,
+      copy,
+    }
+  },
+})
 </script>
 
 <style>

@@ -10,19 +10,20 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { computed, defineComponent, ref } from 'vue'
 
-@Component({
+export default defineComponent({
   name: 'Counter',
-  components: {},
-})
-export default class extends Vue {
-  count = 0
+  setup() {
+    const count = ref(0)
 
-  get countMessage() {
-    return 'ｲｴｰｲヽ(^o^)丿: ' + this.count
-  }
-}
+    const countMessage = computed(() => {
+      return 'ｲｴｰｲヽ(^o^)丿: ' + count.value
+    })
+
+    return { count, countMessage }
+  },
+})
 </script>
 
 <style scoped>

@@ -9,7 +9,6 @@ module.exports = {
     '@vue/typescript',
   ],
   parserOptions: {
-    ecmaVersion: 12,
     parser: '@typescript-eslint/parser',
     ecmaFeatures: {
       jsx: false,
@@ -18,7 +17,7 @@ module.exports = {
   plugins: ['vue', '@typescript-eslint'],
   rules: {
     'prettier/prettier': [
-      'error',
+      'warn',
       {
         singleQuote: true,
         semi: false,
