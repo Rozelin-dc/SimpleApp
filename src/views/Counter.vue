@@ -10,18 +10,20 @@
 </template>
 
 <script lang="ts">
-import { Vue, Options } from 'vue-class-component'
+import { computed, defineComponent, ref } from 'vue'
 
-@Options({
+export default defineComponent({
   name: 'Counter',
-})
-export default class extends Vue {
-  count = 0
+  setup() {
+    const count = ref(0)
 
-  get countMessage() {
-    return 'ｲｴｰｲヽ(^o^)丿: ' + this.count
-  }
-}
+    const countMessage = computed(() => {
+      return 'ｲｴｰｲヽ(^o^)丿: ' + count.value
+    })
+
+    return { count, countMessage }
+  },
+})
 </script>
 
 <style scoped>

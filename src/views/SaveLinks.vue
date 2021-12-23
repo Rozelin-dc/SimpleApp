@@ -7,18 +7,15 @@
           {{ link.detail }}
         </el-link>
         <el-button
-          v-clipboard="link.url"
-          v-clipboard:success="copySuccess"
-          v-clipboard:error="copyError"
+          circle
           type="primary"
           icon="el-icon-edit"
           size="small"
-          circle
+          @click="copy(link.url)"
         />
         <el-popconfirm
           confirm-button-text="はい"
           cancel-button-text="いいえ"
-          :icon="InfoFilled"
           icon-color="red"
           title="リンクを削除します。よろしいですか？"
           @confirm="deleteLink(link)"
@@ -31,7 +28,7 @@
       </li>
     </div>
 
-    <el-form ref="newLink" :inline="true" :model="newLink" :rules="inputError">
+    <el-form ref="formRef" :inline="true" :model="newLink" :rules="inputError">
       <el-form-item label="URL" prop="url">
         <el-input
           v-model="newLink.url"
@@ -57,75 +54,96 @@
 
 <script lang="ts">
 import { ElNotification } from 'element-plus'
-import { Vue, Options } from 'vue-class-component'
+import { computed, defineComponent, onMounted, reactive, ref, Ref } from 'vue'
 
 interface Link {
   url: string
   detail: string
 }
 
-@Options({
+export default defineComponent({
   name: 'SaveLinks',
-})
-export default class extends Vue {
-  newLink: Link = {
-    url: '',
-    detail: '',
-  }
-
-  inputError = {
-    url: [{ required: true, message: 'リンク先のURLを入力してください' }],
-  }
-
-  links: Link[] = []
-  formName = 'newLink'
-  isValid = true
-
-  get addOk() {
-    if (this.newLink.url === '') return false
-
-    this.$refs[this.formName].validate((isValid: boolean) => {
-      this.isValid = isValid
+  setup() {
+    let newLink: Link = reactive({
+      url: '',
+      detail: '',
     })
-    return this.isValid
-  }
+    const links: Ref<Link[]> = ref([])
+    const formRef = ref()
+    const inputError = reactive({
+      url: [{ required: true, message: 'リンク先のURLを入力してください' }],
+    })
 
-  mounted() {
-    const localLinks = localStorage.getItem('RozelinAppLinks')
-    if (localLinks) this.links = JSON.parse(localLinks)
-  }
+    let isValid = true
+    const addOk = computed(() => {
+      if (newLink.url === '') return false
 
-  addLink() {
-    if (this.newLink.detail === '') {
-      this.newLink.detail = this.newLink.url
+      formRef.value.validate((v: boolean) => {
+        isValid = v
+      })
+      return isValid
+    })
+
+    const addLink = () => {
+      if (newLink.detail === '') {
+        newLink.detail = newLink.url
+      }
+      links.value.push({ ...newLink })
+      setLinks()
+      newLink.url = ''
+      newLink.detail = ''
     }
-    this.links.push({ ...this.newLink })
-    localStorage.setItem('RozelinAppLinks', JSON.stringify(this.links))
-    this.newLink.url = ''
-    this.newLink.detail = ''
-  }
 
-  async deleteLink(deleteLink: Link) {
-    this.links = this.links.filter((link) => link.url !== deleteLink.url)
-    localStorage.setItem('RozelinAppLinks', JSON.stringify(this.links))
-  }
+    const deleteLink = (deleteLink: Link) => {
+      links.value = links.value.filter((link) => link.url !== deleteLink.url)
+      setLinks()
+    }
 
-  copySuccess() {
-    ElNotification({
-      message: 'URLをコピーしました',
-      type: 'success',
-      duration: 5 * 1000,
+    const setLinks = () => {
+      if (links.value.length === 0) {
+        localStorage.clear()
+      } else {
+        localStorage.setItem('RozelinAppLinks', JSON.stringify(links.value))
+      }
+    }
+
+    const copy = (value: string) => {
+      navigator.clipboard
+        .writeText(value)
+        .then(() => {
+          ElNotification({
+            message: 'URLのコピーに成功しました',
+            type: 'success',
+            duration: 5 * 1000,
+          })
+        })
+        .catch((e) => {
+          console.error(e)
+          ElNotification({
+            message: 'URLのコピーに失敗しました',
+            type: 'error',
+            duration: 5 * 1000,
+          })
+        })
+    }
+
+    onMounted(() => {
+      const localLinks = localStorage.getItem('RozelinAppLinks')
+      if (localLinks) links.value = JSON.parse(localLinks)
     })
-  }
 
-  copyError() {
-    ElNotification({
-      message: 'URLのコピーに失敗しました',
-      type: 'error',
-      duration: 5 * 1000,
-    })
-  }
-}
+    return {
+      newLink,
+      links,
+      inputError,
+      formRef,
+      addOk,
+      addLink,
+      deleteLink,
+      copy,
+    }
+  },
+})
 </script>
 
 <style>
