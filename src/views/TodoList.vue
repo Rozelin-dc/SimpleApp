@@ -168,10 +168,17 @@ export default defineComponent({
     }
 
     const refreshTable = () => {
-      if (key.value === 'a') key.value = 'b'
-      else key.value = 'a'
+      if (key.value === 'a') {
+        key.value = 'b'
+      } else {
+        key.value = 'a'
+      }
 
-      localStorage.setItem('RozelinAppTasks', JSON.stringify(tasks.value))
+      if (tasks.value.length === 0) {
+        localStorage.clear()
+      } else {
+        localStorage.setItem('RozelinAppTasks', JSON.stringify(tasks.value))
+      }
     }
 
     onMounted(() => {

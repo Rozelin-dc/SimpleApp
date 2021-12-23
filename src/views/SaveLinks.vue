@@ -6,11 +6,16 @@
         <el-link :href="link.url" style="margin-right: 5px">
           {{ link.detail }}
         </el-link>
-        <el-button type="primary" icon="el-icon-edit" size="small" circle />
+        <el-button
+          circle
+          type="primary"
+          icon="el-icon-edit"
+          size="small"
+          @click="copy(link.url)"
+        />
         <el-popconfirm
           confirm-button-text="はい"
           cancel-button-text="いいえ"
-          :icon="InfoFilled"
           icon-color="red"
           title="リンクを削除します。よろしいですか？"
           @confirm="deleteLink(link)"
@@ -84,30 +89,42 @@ export default defineComponent({
         newLink.detail = newLink.url
       }
       links.value.push({ ...newLink })
-      localStorage.setItem('RozelinAppLinks', JSON.stringify(links.value))
+      setLinks()
       newLink.url = ''
       newLink.detail = ''
     }
 
     const deleteLink = (deleteLink: Link) => {
       links.value = links.value.filter((link) => link.url !== deleteLink.url)
-      localStorage.setItem('RozelinAppLinks', JSON.stringify(links.value))
+      setLinks()
     }
 
-    const copySuccess = () => {
-      ElNotification({
-        message: 'URLをコピーしました',
-        type: 'success',
-        duration: 5 * 1000,
-      })
+    const setLinks = () => {
+      if (links.value.length === 0) {
+        localStorage.clear()
+      } else {
+        localStorage.setItem('RozelinAppLinks', JSON.stringify(links.value))
+      }
     }
 
-    const copyError = () => {
-      ElNotification({
-        message: 'URLのコピーに失敗しました',
-        type: 'error',
-        duration: 5 * 1000,
-      })
+    const copy = (value: string) => {
+      navigator.clipboard
+        .writeText(value)
+        .then(() => {
+          ElNotification({
+            message: 'URLのコピーに成功しました',
+            type: 'success',
+            duration: 5 * 1000,
+          })
+        })
+        .catch((e) => {
+          console.error(e)
+          ElNotification({
+            message: 'URLのコピーに失敗しました',
+            type: 'error',
+            duration: 5 * 1000,
+          })
+        })
     }
 
     onMounted(() => {
@@ -119,11 +136,11 @@ export default defineComponent({
       newLink,
       links,
       inputError,
+      formRef,
       addOk,
       addLink,
       deleteLink,
-      copySuccess,
-      copyError,
+      copy,
     }
   },
 })
