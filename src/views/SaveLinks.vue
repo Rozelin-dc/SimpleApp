@@ -101,7 +101,7 @@ export default defineComponent({
 
     const setLinks = () => {
       if (links.value.length === 0) {
-        localStorage.setItem('RozelinAppLinks', JSON.stringify([]))
+        localStorage.removeItem('RozelinAppLinks')
       } else {
         localStorage.setItem('RozelinAppLinks', JSON.stringify(links.value))
       }
