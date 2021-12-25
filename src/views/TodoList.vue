@@ -175,7 +175,7 @@ export default defineComponent({
       }
 
       if (tasks.value.length === 0) {
-        localStorage.clear()
+        localStorage.setItem('RozelinAppTasks', JSON.stringify([]))
       } else {
         localStorage.setItem('RozelinAppTasks', JSON.stringify(tasks.value))
       }
