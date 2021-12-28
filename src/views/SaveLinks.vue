@@ -6,13 +6,9 @@
         <el-link :href="link.url" style="margin-right: 5px">
           {{ link.detail }}
         </el-link>
-        <el-button
-          circle
-          type="primary"
-          icon="el-icon-edit"
-          size="small"
-          @click="copy(link.url)"
-        />
+        <el-button circle type="primary" size="small" @click="copy(link.url)">
+          <el-icon><edit /></el-icon>
+        </el-button>
         <el-popconfirm
           confirm-button-text="はい"
           cancel-button-text="いいえ"
@@ -45,15 +41,18 @@
           placeholder="リンクの詳細や説明を入力"
         />
       </el-form-item>
-      <el-button :disabled="!addOk" type="primary" @click="addLink">
-        add
-      </el-button>
+      <el-form-item>
+        <el-button :disabled="!addOk" type="primary" @click="addLink">
+          add
+        </el-button>
+      </el-form-item>
     </el-form>
   </el-card>
 </template>
 
 <script lang="ts">
 import { ElNotification } from 'element-plus'
+import { Edit } from '@element-plus/icons-vue'
 import { computed, defineComponent, onMounted, reactive, ref, Ref } from 'vue'
 
 interface Link {
@@ -63,6 +62,9 @@ interface Link {
 
 export default defineComponent({
   name: 'SaveLinks',
+  components: {
+    Edit,
+  },
   setup() {
     let newLink: Link = reactive({
       url: '',

@@ -4,7 +4,7 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
-    'plugin:vue/recommended',
+    'plugin:vue/vue3-recommended',
     '@vue/prettier',
     '@vue/typescript',
   ],
@@ -29,5 +29,6 @@ module.exports = {
       { anonymous: 'never', named: 'never', asyncArrow: 'always' },
     ],
     'no-unused-vars': 'off',
+    'vue/multi-word-component-names': 'off',
   },
 }
