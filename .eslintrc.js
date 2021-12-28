@@ -29,5 +29,6 @@ module.exports = {
       { anonymous: 'never', named: 'never', asyncArrow: 'always' },
     ],
     'no-unused-vars': 'off',
+    'vue/multi-word-component-names': 'off',
   },
 }
