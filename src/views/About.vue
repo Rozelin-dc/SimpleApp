@@ -1,5 +1,5 @@
 <template>
-  <div class="about">
+  <div class="container">
     <h1>This is an about page.</h1>
     Vue.jsとTypeScriptで作ったWeb上で動く簡単なアプリです
     <br />

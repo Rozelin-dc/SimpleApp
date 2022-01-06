@@ -1,5 +1,5 @@
 <template>
-  <el-card class="links">
+  <el-card class="container">
     <h2>Save Links</h2>
     <div>
       <li v-for="link in links" :key="link.url" style="margin-bottom: 5px">
@@ -151,12 +151,5 @@ export default defineComponent({
 <style>
 .delete-link-confirm {
   white-space: pre-line;
-}
-</style>
-
-<style scoped>
-.links {
-  width: 80%;
-  margin: 0 auto;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <el-card class="card">
+  <el-card class="container">
     <h2>Todo List</h2>
     <el-table
       ref="tasksTable"
@@ -208,11 +208,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.card {
-  width: 80%;
-  margin: 0 auto;
-}
-
 .button-wrapper {
   width: 265px;
   margin-right: auto;
