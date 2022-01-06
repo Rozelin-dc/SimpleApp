@@ -1,5 +1,5 @@
 <template>
-  <el-card class="card">
+  <el-card class="container">
     <h2>Σ(･ω･ﾉ)ﾉ！</h2>
     <div>{{ countMessage }}</div>
     <el-button type="success" @click="count++">
@@ -25,10 +25,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style scoped>
-.card {
-  width: 80%;
-  margin: 0 auto;
-}
-</style>

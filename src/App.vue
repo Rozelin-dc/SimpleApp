@@ -21,7 +21,7 @@ export default defineComponent({
 <style scoped>
 .navBar {
   position: relative;
-  width: 100%;
+  margin: 0 auto;
   /* background-color: #2d6d35; */
 }
 </style>
