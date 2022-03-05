@@ -81,13 +81,13 @@ export default defineComponent({
   name: 'TodoList',
   setup() {
     const inputError = reactive({
-      name: [{ required: true, message: 'タスクの名前を入力してください。' }],
+      name: [{ required: true, message: 'タスクの名前を入力してください。' }]
     })
 
     let newTask = reactive({
       name: '',
       date: '',
-      status: '',
+      status: ''
     })
 
     const tasks: Ref<Task[]> = ref([])
@@ -118,7 +118,7 @@ export default defineComponent({
 
       tasks.value.push({
         ...newTask,
-        number: newTaskNumber,
+        number: newTaskNumber
       })
 
       newTaskNumber += 1
@@ -140,14 +140,14 @@ export default defineComponent({
     }
 
     const taskDelete = (taskId: number) => {
-      tasks.value = tasks.value.filter((task) => task.number !== taskId)
+      tasks.value = tasks.value.filter(task => task.number !== taskId)
       refreshTable()
     }
 
     const taskCompleteBulk = () => {
-      tasks.value.forEach((task) => {
+      tasks.value.forEach(task => {
         if (
-          multipleSelection.some((selected) => selected.number === task.number)
+          multipleSelection.some(selected => selected.number === task.number)
         ) {
           task.status = '完了'
         }
@@ -157,8 +157,8 @@ export default defineComponent({
 
     const taskDeleteBulk = () => {
       tasks.value = tasks.value.filter(
-        (task) =>
-          !multipleSelection.some((selected) => selected.number === task.number)
+        task =>
+          !multipleSelection.some(selected => selected.number === task.number)
       )
       refreshTable()
     }
@@ -201,9 +201,9 @@ export default defineComponent({
       taskDelete,
       taskCompleteBulk,
       taskDeleteBulk,
-      handleSelectionChange,
+      handleSelectionChange
     }
-  },
+  }
 })
 </script>
 
