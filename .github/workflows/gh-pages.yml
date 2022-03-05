@@ -16,9 +16,6 @@ jobs:
           node-version: '16'
           cache: 'npm'
 
-      - name: Setup npm
-        run: npm install -g npm@7
-
       - name: Install Packages
         run: npm install
 

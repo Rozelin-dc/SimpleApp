@@ -63,17 +63,17 @@ interface Link {
 export default defineComponent({
   name: 'SaveLinks',
   components: {
-    Edit,
+    Edit
   },
   setup() {
     let newLink: Link = reactive({
       url: '',
-      detail: '',
+      detail: ''
     })
     const links: Ref<Link[]> = ref([])
     const formRef = ref()
     const inputError = reactive({
-      url: [{ required: true, message: 'リンク先のURLを入力してください' }],
+      url: [{ required: true, message: 'リンク先のURLを入力してください' }]
     })
 
     let isValid = true
@@ -97,7 +97,7 @@ export default defineComponent({
     }
 
     const deleteLink = (deleteLink: Link) => {
-      links.value = links.value.filter((link) => link.url !== deleteLink.url)
+      links.value = links.value.filter(link => link.url !== deleteLink.url)
       setLinks()
     }
 
@@ -116,15 +116,15 @@ export default defineComponent({
           ElNotification({
             message: 'URLのコピーに成功しました',
             type: 'success',
-            duration: 5 * 1000,
+            duration: 5 * 1000
           })
         })
-        .catch((e) => {
+        .catch(e => {
           console.error(e)
           ElNotification({
             message: 'URLのコピーに失敗しました',
             type: 'error',
-            duration: 5 * 1000,
+            duration: 5 * 1000
           })
         })
     }
@@ -142,9 +142,9 @@ export default defineComponent({
       addOk,
       addLink,
       deleteLink,
-      copy,
+      copy
     }
-  },
+  }
 })
 </script>
 
