@@ -4,10 +4,11 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
     'plugin:vue/vue3-recommended',
-    '@vue/prettier',
-    '@vue/typescript',
+    'plugin:prettier/recommended',
   ],
+  parser: 'vue-eslint-parser',
   parserOptions: {
     parser: '@typescript-eslint/parser',
     ecmaFeatures: {
@@ -16,14 +17,7 @@ module.exports = {
   },
   plugins: ['vue', '@typescript-eslint'],
   rules: {
-    'prettier/prettier': [
-      'warn',
-      {
-        singleQuote: true,
-        semi: false,
-        tabWidth: 2,
-      },
-    ],
+    'prettier/prettier': 'warn',
     'space-before-function-paren': [
       2,
       { anonymous: 'never', named: 'never', asyncArrow: 'always' },
