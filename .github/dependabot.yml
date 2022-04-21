@@ -10,8 +10,6 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 10
-    reviewers:
-      - Rozelin-dc
     target-branch: "master"
     labels:
       - "dependencies"
