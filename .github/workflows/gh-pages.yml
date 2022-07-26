@@ -16,8 +16,11 @@ jobs:
           node-version: '16'
           cache: 'npm'
 
+      - name: setup npm
+        run: npm i -g npm@7
+
       - name: Install Packages
-        run: npm install
+        run: npm ci
 
       - name: Build
         run: npm run build
